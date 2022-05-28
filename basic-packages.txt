@@ -1,0 +1,14 @@
+bspwm
+sxhkd
+dmenu
+thunar
+thunar-volman
+gvfs
+xdg-utils
+xdg-user-dirs-gtk
+firefox-i18n-tr
+rofi
+zsh
+zsh-autosuggestions
+rxvt-unicode
+bash-completion

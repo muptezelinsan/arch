@@ -36,10 +36,6 @@ jsoncpp
 rxvt-unicode
 urxvt-perls
 zsh
-base-skel
-ctlos-system
-ctlos-keyring
-ctlos-mirrorlist
 ctlos-sddm-themes
 ctlos-wall
 ctlos-qogir

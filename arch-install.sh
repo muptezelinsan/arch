@@ -98,7 +98,7 @@ echo "${Bold}${White}-------------------------------------------------${Sgr0}"
 echo "${Yellow}Home yuklemesi yapilacak partisyonu secin (Ornek: sdaX , vdaX) ${Sgr0}"
 echo "${Bold}${White}-------------------------------------------------${Sgr0}"
 read homepart
-mkfs.ext4 /dev//home/$userpart
+mkfs.ext4 /dev/home/$userpart
 else
 echo "${Bold}${Red}Home partisyonu atlaniyor${Sgr0}"
 fi
@@ -108,7 +108,7 @@ echo "##########################################################################
 YesOrNo() {
         while :
         do
-                read -p "${Blue}Ek / Farklı bir disk bolumu kullanilacak mi? (y/n?): ${Sgr0}" answer
+                read -p "${Blue}Ek / Farkli bir disk bolumu kullanilacak mi? (y/n?): ${Sgr0}" answer
                 case "${answer}" in
                     [yY]|[yY][eE]) exit 0 ;;
                     [nN]|[nN][hH]) exit 1 ;;
@@ -117,7 +117,7 @@ YesOrNo() {
 }
 if $( YesOrNo ); then
 echo "${Bold}${White}-------------------------------------------------${Sgr0}"
-echo "${Yellow}Ek / Farklı disk bolumu yuklemesi icin partisyon secin (Ornek: sdaX , vdaX) ${Sgr0}"
+echo "${Yellow}Ek / Farkli disk bolumu yuklemesi icin partisyon secin (Ornek: sdaX , vdaX) ${Sgr0}"
 echo "${Bold}${White}-------------------------------------------------${Sgr0}"
 read extpart
 mkfs.ext4 /dev/$extpart
@@ -160,7 +160,7 @@ echo "${Bold}${White}-------------------------------------------------${Sgr0}"
 mount /dev/$efipart /mnt/boot/efi
 file="/mnt/home"
 if [ -e $file ]; then
-mount /dev//home/$userpart /mnt/home
+mount /dev/home/$userpart /mnt/home
 fi
 file="/mnt/$extpartF"
 if [ -e $file ]; then
@@ -172,7 +172,7 @@ echo "##########################################################################
 echo "${Bold}${White}-------------------------------------------------${Sgr0}"
 echo "${Yellow}Temel paket yuklemeleri yapiliyor ${Sgr0}"
 echo "${Bold}${White}-------------------------------------------------${Sgr0}"
-pacstrap -i /mnt base base-devel linux linux-headers linux-firmware nano networkmanager sddm git curl grub mtools dosfstools efibootmgr os-prober --noconfirm
+pacstrap -i --noconfirm /mnt base base-devel linux linux-headers linux-firmware nano networkmanager sddm git curl grub mtools dosfstools efibootmgr os-prober --noconfirm
 echo ""
 echo "##############################################################################"
 ##############################################################################
@@ -208,9 +208,9 @@ sleep 3
 echo "${Bold}${White}-------------------------------------------------${Sgr0}"
 echo "${Yellow}Yerel zaman bolgesi ayarlaniyor ${Sgr0}"
 echo "${Bold}${White}-------------------------------------------------${Sgr0}"
-arch-chroot /mnt /bin/bash -c "pacman -Sy curl --noconfirm"
-arch-chroot /mnt /bin/bash -c "ln -sf /usr/share/zoneinfo/$(curl https://ipapi.co/timezone) /etc/localtime"
-arch-chroot /mnt /bin/bash -c "timedatectl set-timezone $(curl https://ipapi.co/timezone)"
+arch-chroot /mnt /bin/bash -c "pacman -Sy curl --noconfirm --needed"
+arch-chroot /mnt /bin/bash -c "ln -sf /usr/share/zoneinfo/$(curl https:/ipapi.co/timezone) /etc/localtime"
+arch-chroot /mnt /bin/bash -c "timedatectl set-timezone $(curl https:/ipapi.co/timezone)"
 arch-chroot /mnt /bin/bash -c "hwclock --systohc"
 echo ""
 echo "##############################################################################"
@@ -222,8 +222,6 @@ read lang
 echo "$lang.UTF-8 UTF-8" > /mnt/etc/locale.gen
 arch-chroot /mnt /bin/bash -c "locale-gen" 
 echo "LANG=$lang.UTF-8" > /mnt/etc/locale.conf
-arch-chroot /mnt /bin/bash -c "export $(cat /mnt/etc/locale.conf)" 
-export $(cat /mnt/etc/locale.conf)
 echo ""
 echo "##############################################################################"
 ##############################################################################
@@ -232,8 +230,6 @@ echo "${Yellow} Klavye dilini girin (Ornek : us , trq) ${Sgr0}"
 echo "${Bold}${White}-------------------------------------------------${Sgr0}"
 read keymap
 echo "KEYMAP=$keymap" > /mnt/etc/vconsole.conf
-arch-chroot /mnt /bin/bash -c "export $(cat /mnt/etc/vconsole.conf)" 
-export $(cat /mnt/etc/vconsole.conf)
 echo ""
 echo "##############################################################################"
 ##############################################################################
@@ -275,50 +271,69 @@ echo "##########################################################################
 
 arch-chroot /mnt /bin/bash -c "pacman-key --recv-key FBA220DFC880C036 --keyserver keyserver.ubuntu.com"
 arch-chroot /mnt /bin/bash -c "pacman-key --lsign-key FBA220DFC880C036"
-arch-chroot /mnt /bin/bash -c "pacman -U --noconfirm 'https://cdn-mirror.chaotic.cx/chaotic-aur/chaotic-keyring.pkg.tar.zst' 'https://cdn-mirror.chaotic.cx/chaotic-aur/chaotic-mirrorlist.pkg.tar.zst'"
+arch-chroot /mnt /bin/bash -c "pacman -U --noconfirm 'https:/cdn-mirror.chaotic.cx/chaotic-aur/chaotic-keyring.pkg.tar.zst' 'https:/cdn-mirror.chaotic.cx/chaotic-aur/chaotic-mirrorlist.pkg.tar.zst'"
 echo "
 [chaotic-aur]
 Include = /etc/pacman.d/chaotic-mirrorlist" >> /mnt/etc/pacman.conf
-arch-chroot /mnt /bin/bash -c "pacman -Syu --noconfirm yay"
+arch-chroot /mnt -c "sudo pacman -U 'https:/github.com/ctlos/ctlos_repo/blob/master/x86_64/ctlos-keyring-stable-2-x86_64.pkg.tar.zst'"
+arch-chroot /mnt -c "sudo pacman -U 'https:/github.com/ctlos/ctlos_repo/tree/master/x86_64/ctlos-mirrorlist-stable-1-x86_64.pkg.tar.zst'"
+cp -RT usr/ /mnt/usr/
+arch-chroot /mnt -c "bash /usr/share/arcolinux-spices/scripts/get-the-keys-and-repos.sh"
+arch-chroot /mnt /bin/bash -c "pacman -Syu --noconfirm --needed yay-bin"
 echo ""
 echo "##############################################################################"
 ##############################################################################
 echo "${Bold}${White}-------------------------------------------------${Sgr0}"
 cp basic-packages.txt /mnt/home/$user/
+cp ctlpkg.txt /mnt/home/$user/
 echo "${Bold}${White}-------------------------------------------------${Sgr0}"
-arch-chroot /mnt /bin/bash -c "pacman -Sy --noconfirm - < /home/$user/basic-packages.txt"
+arch-chroot /mnt /bin/bash -c "pacman -Sy --noconfirm --needed - < /home/$user/basic-packages.txt"
+arch-chroot /mnt /bin/bash -c "pacman -Sy --noconfirm --needed - < /home/$user/ctlpkg.txt"
 ##############################################################################
 echo "${Bold}${White}-------------------------------------------------${Sgr0}"
 arch-chroot /mnt /bin/bash -c "grub-install --target=x86_64-efi --efi-directory=/boot/efi --bootloader-id=$hostname"
 echo "${Bold}${White}-------------------------------------------------${Sgr0}"
 arch-chroot /mnt /bin/bash -c "grub-mkconfig -o /boot/grub/grub.cfg"
 ##############################################################################
-mkdir -p /mnt/home/$user/.config/bspwm
-mkdir -p /mnt/home/$user/.config/sxhkd
 echo "${Bold}${White}-------------------------------------------------${Sgr0}"
-arch-chroot /mnt /bin/bash -c "cp /usr/share/doc/bspwm/examples/bspwmrc /home/$user/.config/bspwm/"
-arch-chroot /mnt /bin/bash -c "cp /usr/share/doc/bspwm/examples/sxhkdrc /home/$user/.config/sxhkd/"
-echo "${Bold}${White}-------------------------------------------------${Sgr0}"
-arch-chroot /mnt /bin/bash -c "chown -R $user:$user /home/$user/" 
-echo "${Bold}${White}-------------------------------------------------${Sgr0}"
-echo "
-###
-# Autostart
-###
-bash /home/$user/.config/bspwm/autostart.sh & " >> /mnt/home/$user/.config/bspwm/bspwmrc
-echo "${Bold}${White}-------------------------------------------------${Sgr0}"
-echo "
-###
-# Autostart
-###
-# X11 set keymap
-setxkbmap $keymap &" >> /mnt/home/$user/.config/bspwm/autostart.sh
-echo "${Bold}${White}-------------------------------------------------${Sgr0}"
-arch-chroot /mnt /bin/bash -c "chmod a+x /home/$user/.config/bspwm/autostart.sh"
-echo "${Bold}${White}-------------------------------------------------${Sgr0}"
+arch-chroot /mnt -c "sudo pacman -U 'https:/github.com/ctlos/ctlos_repo/blob/master/x86_64/bspwm-skel-1.4.0-1-any.pkg.tar.zst'"
+mv /mnt/etc/skel/ /mnt/etc/skel-ctlos/
+mkdir -p /mnt/etc/skel/
+arch-chroot /mnt /bin/bash -c "pacman -Syu --noconfirm --needed arcolinux-bspwm-git"
+cp -RT /mnt/etc/skel/ /mnt/home/$user/
 arch-chroot /mnt /bin/bash -c "chown -R $user:$user /home/$user/"
 echo "${Bold}${White}-------------------------------------------------${Sgr0}"
 ##############################################################################
+arch-chroot /mnt /bin/bash -c "wget -P /tmp https://github.com/shvchk/poly-dark/raw/master/install.sh"
+arch-chroot /mnt /bin/bash -c "bash /tmp/install.sh"
+echo "${Bold}${White}-------------------------------------------------${Sgr0}"
+##############################################################################
+#mkdir -p /mnt/home/$user/.config/bspwm
+#mkdir -p /mnt/home/$user/.config/sxhkd
+#echo "${Bold}${White}-------------------------------------------------${Sgr0}"
+#arch-chroot /mnt /bin/bash -c "cp /usr/share/doc/bspwm/examples/bspwmrc /home/$user/.config/bspwm/"
+#arch-chroot /mnt /bin/bash -c "cp /usr/share/doc/bspwm/examples/sxhkdrc /home/$user/.config/sxhkd/"
+#echo "${Bold}${White}-------------------------------------------------${Sgr0}"
+#arch-chroot /mnt /bin/bash -c "chown -R $user:$user /home/$user/" 
+#echo "${Bold}${White}-------------------------------------------------${Sgr0}"
+#echo "
+####
+## Autostart
+####
+#bash /home/$user/.config/bspwm/autostart.sh & " >> /mnt/home/$user/.config/bspwm/bspwmrc
+#echo "${Bold}${White}-------------------------------------------------${Sgr0}"
+#echo "
+####
+## Autostart
+####
+## X11 set keymap
+#setxkbmap $keymap &" >> /mnt/home/$user/.config/bspwm/autostart.sh
+#echo "${Bold}${White}-------------------------------------------------${Sgr0}"
+#arch-chroot /mnt /bin/bash -c "chmod a+x /home/$user/.config/bspwm/autostart.sh"
+#echo "${Bold}${White}-------------------------------------------------${Sgr0}"
+#arch-chroot /mnt /bin/bash -c "chown -R $user:$user /home/$user/"
+#echo "${Bold}${White}-------------------------------------------------${Sgr0}"
+###############################################################################
 echo "${Bold}${White}-------------------------------------------------${Sgr0}"
 arch-chroot /mnt /bin/bash -c "systemctl enable NetworkManager"
 echo "${Bold}${White}-------------------------------------------------${Sgr0}"
@@ -330,7 +345,7 @@ echo "${Bold}${White}-------------------------------------------------${Sgr0}"
 echo "${Bold}${Yellow}-------------------------------------------------${Sgr0}"
 echo "${Bold}${Yellow}-------------------------------------------------${Sgr0}"
 echo "${Bold}${Yellow}-------------------------------------------------${Sgr0}"
-echo "${Yellow}Kurulum tamamlandı ${Sgr0}"
+echo "${Yellow}Kurulum tamamlandi ${Sgr0}"
 echo "${Bold}${Yellow}-------------------------------------------------${Sgr0}"
 echo "${Bold}${Yellow}-------------------------------------------------${Sgr0}"
 echo "${Bold}${Yellow}-------------------------------------------------${Sgr0}"

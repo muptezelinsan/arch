@@ -162,7 +162,7 @@ echo "##########################################################################
 echo "${Bold}${White}-------------------------------------------------${Sgr0}"
 echo "${Yellow}Temel paket yuklemeleri yapiliyor ${Sgr0}"
 echo "${Bold}${White}-------------------------------------------------${Sgr0}"
-pacstrap -i /mnt base base-devel linux linux-headers linux-firmware nano wget networkmanager sddm git curl grub mtools dosfstools efibootmgr os-prober --noconfirm
+pacstrap -i /mnt base linux linux-headers linux-firmware nano wget networkmanager base-devel xorg-drivers linux-tools archlinux-tools sddm git curl grub mtools dosfstools efibootmgr os-prober --noconfirm
 echo ""
 echo "##############################################################################"
 ##############################################################################

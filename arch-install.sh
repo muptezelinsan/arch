@@ -15,18 +15,27 @@ Cyan=$(tput setaf 6)
 White=$(tput setaf 7)
 ##############################################################################
 clear
-file="/mnt/boot/efi"
-if [ -e $file ]; then
-umount -R /mnt
-swapoff -a
-fi
+YesOrNo() {
+        while :
+        do
+                read -p 'Aynalari guncellemek istiyor musunuz? (y/n?): ' answer
+                case "${answer}" in
+                    [yY]|[yY][eE]) exit 0 ;;
+                    [nN]|[nN][hH]) exit 1 ;;
+                esac
+        done
+}
+if $( YesOrNo ); then
 
 echo "${Bold}${White}-------------------------------------------------${Sgr0}"
 echo "${Yellow}Aynalar guncelleniyor ${Sgr0}"
 echo "${Bold}${White}-------------------------------------------------${Sgr0}"
 reflector --verbose --latest 10 --sort rate --save /etc/pacman.d/mirrorlist
 cat /etc/pacman.d/mirrorlist
+else
 pacman-key --populate archlinux
+fi
+
 echo ""
 echo "##############################################################################"
 ##############################################################################
@@ -134,6 +143,15 @@ mount /dev/$efipart /mnt/boot/efi
 file="/mnt/home"
 if [ -e $file ]; then
 mount /dev/$homepart /mnt/home
+fi
+
+cp -R /root/arch/ /mnt/home/
+
+mkdir -p /mnt/ikikarinca
+mount -o defaults,noatime,discard=async,ssd /dev/sda5 /mnt/ikikarinda
+echo ""
+echo "${Bold}${Red}ikikarinca montaji /// !!!! ${Sgr0}"
+sleep 2
 echo ""
 echo "##############################################################################"
 ##############################################################################
@@ -242,19 +260,17 @@ arch-chroot /mnt /bin/bash -c "pacman -U 'https://cdn-mirror.chaotic.cx/chaotic-
 echo "
 [chaotic-aur]
 Include = /etc/pacman.d/chaotic-mirrorlist" >> /mnt/etc/pacman.conf
-cp strap.sh /mnt/home/$user/
 cp -RT usr/ /mnt/usr/
 arch-chroot /mnt /bin/bash -c "bash /usr/share/arcolinux-spices/scripts/get-the-keys-and-repos.sh"
-arch-chroot /mnt /bin/bash -c "pacman -Syu --noconfirm --needed yay"
+arch-chroot /mnt /bin/bash -c "bash /home/arch/strap.sh"
+arch-chroot /mnt /bin/bash -c "pacman -Syu yay-bin"
 echo ""
 echo "##############################################################################"
 ##############################################################################
 echo "${Bold}${White}-------------------------------------------------${Sgr0}"
-cp pkgs.txt /mnt/home/$user/
-#cp ctlpkg.txt /mnt/home/$user/
 echo "${Bold}${White}-------------------------------------------------${Sgr0}"
-arch-chroot /mnt /bin/bash -c "pacman -Sy --noconfirm - < /home/$user/pkgs.txt"
-#arch-chroot /mnt /bin/bash -c "pacman -Sy --noconfirm - < /home/$user/ctlpkg.txt"
+arch-chroot /mnt /bin/bash -c "yay -S - < /home/arch/pkgs.txt"
+#arch-chroot /mnt /bin/bash -c "yay -S - < /home/arch/ctlpkg.txt"
 ##############################################################################
 echo "${Bold}${White}-------------------------------------------------${Sgr0}"
 arch-chroot /mnt /bin/bash -c "grub-install --target=x86_64-efi --efi-directory=/boot/efi --bootloader-id=$hostname"
@@ -262,47 +278,17 @@ echo "${Bold}${White}-------------------------------------------------${Sgr0}"
 arch-chroot /mnt /bin/bash -c "grub-mkconfig -o /boot/grub/grub.cfg"
 ##############################################################################
 echo "${Bold}${White}-------------------------------------------------${Sgr0}"
-#arch-chroot /mnt /bin/bash -c "pacman -Syu --noconfirm ctlos-bspwm-skel"
+arch-chroot /mnt /bin/bash -c "yay -S ctlos-bspwm-skel"
 mv /mnt/etc/skel/ /mnt/etc/skel-ctlos/
 mkdir -p /mnt/etc/skel/
-arch-chroot /mnt /bin/bash -c "pacman -Syu --noconfirm arcolinux-bspwm-git"
+arch-chroot /mnt /bin/bash -c "yay -S arcolinux-bspwm-git"
 cp -RT /mnt/etc/skel/ /mnt/home/$user/
 arch-chroot /mnt /bin/bash -c "chown -R $user:$user /home/$user/"
 echo "${Bold}${White}-------------------------------------------------${Sgr0}"
 ##############################################################################
-cp pdinstall.sh /mnt/tmp/
-arch-chroot /mnt /bin/bash -c "bash /tmp/pdinstall.sh"
-echo "${Bold}${White}-------------------------------------------------${Sgr0}"
-##############################################################################
-#mkdir -p /mnt/home/$user/.config/bspwm
-#mkdir -p /mnt/home/$user/.config/sxhkd
-#echo "${Bold}${White}-------------------------------------------------${Sgr0}"
-#arch-chroot /mnt /bin/bash -c "cp /usr/share/doc/bspwm/examples/bspwmrc /home/$user/.config/bspwm/"
-#arch-chroot /mnt /bin/bash -c "cp /usr/share/doc/bspwm/examples/sxhkdrc /home/$user/.config/sxhkd/"
-#echo "${Bold}${White}-------------------------------------------------${Sgr0}"
-#arch-chroot /mnt /bin/bash -c "chown -R $user:$user /home/$user/" 
-#echo "${Bold}${White}-------------------------------------------------${Sgr0}"
-#echo "
-####
-## Autostart
-####
-#bash /home/$user/.config/bspwm/autostart.sh & " >> /mnt/home/$user/.config/bspwm/bspwmrc
-#echo "${Bold}${White}-------------------------------------------------${Sgr0}"
-#echo "
-####
-## Autostart
-####
-## X11 set keymap
-#setxkbmap $keymap &" >> /mnt/home/$user/.config/bspwm/autostart.sh
-#echo "${Bold}${White}-------------------------------------------------${Sgr0}"
-#arch-chroot /mnt /bin/bash -c "chmod a+x /home/$user/.config/bspwm/autostart.sh"
-#echo "${Bold}${White}-------------------------------------------------${Sgr0}"
-#arch-chroot /mnt /bin/bash -c "chown -R $user:$user /home/$user/"
-#echo "${Bold}${White}-------------------------------------------------${Sgr0}"
-###############################################################################
+arch-chroot /mnt /bin/bash -c "bash /home/arch/pdinstall.sh"
 echo "${Bold}${White}-------------------------------------------------${Sgr0}"
 arch-chroot /mnt /bin/bash -c "systemctl enable NetworkManager"
-echo "${Bold}${White}-------------------------------------------------${Sgr0}"
 arch-chroot /mnt /bin/bash -c "systemctl enable sddm"
 echo "${Bold}${White}-------------------------------------------------${Sgr0}"
 ##############################################################################
@@ -338,3 +324,6 @@ else
 echo "${Bold}${Red}Cikis yapacaginiz zaman montajlari ayirmayi unutmayin${Sgr0}"
 fi
 sleep 3
+##############################################################################
+##############################################################################
+##############################################################################

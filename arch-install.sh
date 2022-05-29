@@ -285,10 +285,14 @@ arch-chroot /mnt /bin/bash -c "grub-mkconfig -o /boot/grub/grub.cfg"
 echo "${Bold}${White}-------------------------------------------------${Sgr0}"
 cp -R /mnt/etc/skel/ /mnt/etc/skel-ctlos/
 rm -rf /mnt/etc/skel/
-cp -R /root/arch/etc/skel/ /mnt/etc/
+cp -R /etc/skel/ /mnt/etc/
 cp -RT /usr/bin/ /mnt/usr/bin/
 ###arch-chroot /mnt /bin/bash -c "yay -S --needed arcolinux-bspwm-git"
 cp -RT /mnt/etc/skel/ /mnt/home/$user/
+cp /mnt/home/$user/.config/bspwm/bspwmrc /mnt/home/$user/.config/bspwm/bspwmrc.old
+cp /mnt/usr/share/doc/bspwm/examples/bspwmrc /mnt/home/$user/.config/bspwm/
+cp /mnt/home/$user/.config/sxhkd/sxhkdrc /mnt/home/$user/.config/sxhkd/sxhkdrc.old
+cp /mnt/usr/share/doc/bspwm/examples/sxhkdrc /mnt/home/$user/.config/sxhkd/
 arch-chroot /mnt /bin/bash -c "chown -R $user:$user /home/$user/"
 echo "${Bold}${White}-------------------------------------------------${Sgr0}"
 ##############################################################################

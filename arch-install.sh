@@ -18,7 +18,7 @@ clear
 YesOrNo() {
         while :
         do
-                read -p 'Aynalari guncellemek istiyor musunuz? (y/n?): ' answer
+                read -p "${Green}Aynalari guncellemek istiyor musunuz? (y/n?): " answer
                 case "${answer}" in
                     [yY]|[yY][eE]) exit 0 ;;
                     [nN]|[nN][hH]) exit 1 ;;
@@ -42,7 +42,7 @@ echo "##########################################################################
 YesOrNo() {
         while :
         do
-                read -p 'Disk bolumleme yapilacak mi? (y/n?): ' answer
+                read -p "${Green}Disk bolumleme yapilacak mi? (y/n?): " answer
                 case "${answer}" in
                     [yY]|[yY][eE]) exit 0 ;;
                     [nN]|[nN][hH]) exit 1 ;;
@@ -71,7 +71,7 @@ echo "##########################################################################
 YesOrNo() {
         while :
         do
-                read -p "${Blue}Takas bolumu kullanilacak mi? (y/n?): ${Sgr0}" answer
+                read -p "${Green}Takas bolumu kullanilacak mi? (y/n?): ${Sgr0}" answer
                 case "${answer}" in
                     [yY]|[yY][eE]) exit 0 ;;
                     [nN]|[nN][hH]) exit 1 ;;
@@ -102,7 +102,7 @@ echo "##########################################################################
 YesOrNo() {
         while :
         do
-                read -p "${Blue}HOME bolumu kullanilacak mi? (y/n?): ${Sgr0}" answer
+                read -p "${Green}HOME bolumu kullanilacak mi? (y/n?): ${Sgr0}" answer
                 case "${answer}" in
                     [yY]|[yY][eE]) exit 0 ;;
                     [nN]|[nN][hH]) exit 1 ;;
@@ -146,6 +146,10 @@ mount /dev/$homepart /mnt/home
 fi
 
 cp -R /root/arch/ /mnt/home/
+mv /mnt/etc/pacman.d/ /mnt/etc/pacman.d.bak
+cp -R /etc/pacman.d/ /mnt/etc/
+mv /mnt/etc/pacman.conf /mnt/etc/pacman.conf.bak
+cp /etc/pacman.conf /mnt/etc/
 
 mkdir -p /mnt/ikikarinca
 mount -o defaults,noatime,discard=async,ssd /dev/sda5 /mnt/ikikarinda
@@ -309,7 +313,7 @@ sleep 3
 YesOrNo() {
         while :
         do
-                read -p "${Blue}Montajlari ayir ve sistemi yeniden baslat? (y/n?): ${Sgr0}" answer
+                read -p "${Green}Montajlari ayir ve sistemi yeniden baslat? (y/n?): ${Sgr0}" answer
                 case "${answer}" in
                     [yY]|[yY][eE]) exit 0 ;;
                     [nN]|[nN][hH]) exit 1 ;;

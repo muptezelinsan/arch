@@ -95,7 +95,6 @@ pulseaudio
 pulseaudio-alsa
 pulseaudio-bluetooth
 pulseaudio-equalizer
-lib32-alsa-plugins
 libcdio
 libdvdread
 libdvdnav
@@ -168,7 +167,7 @@ keepassxc
 veracrypt
 firefox
 firefox-i18n-tr
-firefox-ublock-originx
+firefox-ublock-origin
 smplayer
 smplayer-skins
 smplayer-themes
@@ -186,4 +185,4 @@ archlinux-appstream-data-pamac
 pamac-aur
 qogir-icon-theme-git
 qt5-styleplugins
-qgnomeplatformx
+qgnomeplatform

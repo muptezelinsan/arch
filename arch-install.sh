@@ -98,7 +98,7 @@ echo "${Bold}${White}-------------------------------------------------${Sgr0}"
 echo "${Yellow}Home yuklemesi yapilacak partisyonu secin (Ornek: sdaX , vdaX) ${Sgr0}"
 echo "${Bold}${White}-------------------------------------------------${Sgr0}"
 read homepart
-mkfs.ext4 /dev/home/$userpart
+mkfs.ext4 /dev/$homepart
 else
 echo "${Bold}${Red}Home partisyonu atlaniyor${Sgr0}"
 fi
@@ -160,7 +160,7 @@ echo "${Bold}${White}-------------------------------------------------${Sgr0}"
 mount /dev/$efipart /mnt/boot/efi
 file="/mnt/home"
 if [ -e $file ]; then
-mount /dev/home/$userpart /mnt/home
+mount /dev/$homepart /mnt/home
 fi
 file="/mnt/$extpartF"
 if [ -e $file ]; then
@@ -172,7 +172,7 @@ echo "##########################################################################
 echo "${Bold}${White}-------------------------------------------------${Sgr0}"
 echo "${Yellow}Temel paket yuklemeleri yapiliyor ${Sgr0}"
 echo "${Bold}${White}-------------------------------------------------${Sgr0}"
-pacstrap -i --noconfirm /mnt base base-devel linux linux-headers linux-firmware nano networkmanager sddm git curl grub mtools dosfstools efibootmgr os-prober --noconfirm
+pacstrap -i --noconfirm /mnt base base-devel linux linux-headers linux-firmware nano wget networkmanager sddm git curl grub mtools dosfstools efibootmgr os-prober --noconfirm
 echo ""
 echo "##############################################################################"
 ##############################################################################
@@ -209,8 +209,8 @@ echo "${Bold}${White}-------------------------------------------------${Sgr0}"
 echo "${Yellow}Yerel zaman bolgesi ayarlaniyor ${Sgr0}"
 echo "${Bold}${White}-------------------------------------------------${Sgr0}"
 arch-chroot /mnt /bin/bash -c "pacman -Sy curl --noconfirm --needed"
-arch-chroot /mnt /bin/bash -c "ln -sf /usr/share/zoneinfo/$(curl https:/ipapi.co/timezone) /etc/localtime"
-arch-chroot /mnt /bin/bash -c "timedatectl set-timezone $(curl https:/ipapi.co/timezone)"
+arch-chroot /mnt /bin/bash -c "ln -sf /usr/share/zoneinfo/$(curl https://ipapi.co/timezone) /etc/localtime"
+arch-chroot /mnt /bin/bash -c "timedatectl set-timezone $(curl https://ipapi.co/timezone)"
 arch-chroot /mnt /bin/bash -c "hwclock --systohc"
 echo ""
 echo "##############################################################################"
@@ -271,12 +271,11 @@ echo "##########################################################################
 
 arch-chroot /mnt /bin/bash -c "pacman-key --recv-key FBA220DFC880C036 --keyserver keyserver.ubuntu.com"
 arch-chroot /mnt /bin/bash -c "pacman-key --lsign-key FBA220DFC880C036"
-arch-chroot /mnt /bin/bash -c "pacman -U --noconfirm 'https:/cdn-mirror.chaotic.cx/chaotic-aur/chaotic-keyring.pkg.tar.zst' 'https:/cdn-mirror.chaotic.cx/chaotic-aur/chaotic-mirrorlist.pkg.tar.zst'"
+arch-chroot /mnt /bin/bash -c "pacman -U --noconfirm 'https://cdn-mirror.chaotic.cx/chaotic-aur/chaotic-keyring.pkg.tar.zst' 'https://cdn-mirror.chaotic.cx/chaotic-aur/chaotic-mirrorlist.pkg.tar.zst'"
 echo "
 [chaotic-aur]
 Include = /etc/pacman.d/chaotic-mirrorlist" >> /mnt/etc/pacman.conf
-arch-chroot /mnt -c "sudo pacman -U 'https:/github.com/ctlos/ctlos_repo/blob/master/x86_64/ctlos-keyring-stable-2-x86_64.pkg.tar.zst'"
-arch-chroot /mnt -c "sudo pacman -U 'https:/github.com/ctlos/ctlos_repo/tree/master/x86_64/ctlos-mirrorlist-stable-1-x86_64.pkg.tar.zst'"
+cp strap.sh /mnt/home/$user/
 cp -RT usr/ /mnt/usr/
 arch-chroot /mnt -c "bash /usr/share/arcolinux-spices/scripts/get-the-keys-and-repos.sh"
 arch-chroot /mnt /bin/bash -c "pacman -Syu --noconfirm --needed yay-bin"
@@ -296,7 +295,7 @@ echo "${Bold}${White}-------------------------------------------------${Sgr0}"
 arch-chroot /mnt /bin/bash -c "grub-mkconfig -o /boot/grub/grub.cfg"
 ##############################################################################
 echo "${Bold}${White}-------------------------------------------------${Sgr0}"
-arch-chroot /mnt -c "sudo pacman -U 'https:/github.com/ctlos/ctlos_repo/blob/master/x86_64/bspwm-skel-1.4.0-1-any.pkg.tar.zst'"
+arch-chroot /mnt /bin/bash -c "pacman -Syu --noconfirm --needed ctlos-bspwm-skel"
 mv /mnt/etc/skel/ /mnt/etc/skel-ctlos/
 mkdir -p /mnt/etc/skel/
 arch-chroot /mnt /bin/bash -c "pacman -Syu --noconfirm --needed arcolinux-bspwm-git"
@@ -306,6 +305,9 @@ echo "${Bold}${White}-------------------------------------------------${Sgr0}"
 ##############################################################################
 arch-chroot /mnt /bin/bash -c "wget -P /tmp https://github.com/shvchk/poly-dark/raw/master/install.sh"
 arch-chroot /mnt /bin/bash -c "bash /tmp/install.sh"
+rm -r /mnt/home/$user/strap.sh
+rm -r /mnt/home/$user/basic-packages.txt
+rm -r /mnt/home/$user/ctlpkg.txt
 echo "${Bold}${White}-------------------------------------------------${Sgr0}"
 ##############################################################################
 #mkdir -p /mnt/home/$user/.config/bspwm

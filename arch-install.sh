@@ -273,7 +273,8 @@ echo "##########################################################################
 ##############################################################################
 echo "${Bold}${White}-------------------------------------------------${Sgr0}"
 echo "${Bold}${White}-------------------------------------------------${Sgr0}"
-arch-chroot /mnt /bin/bash -c "yay -S - < /home/arch/pkgs.txt"
+arch-chroot /mnt /bin/bash -c "yay -S ctlos"
+arch-chroot /mnt /bin/bash -c "yay -S --needed - < /home/arch/pkgs.txt"
 #arch-chroot /mnt /bin/bash -c "yay -S - < /home/arch/ctlpkg.txt"
 ##############################################################################
 echo "${Bold}${White}-------------------------------------------------${Sgr0}"
@@ -282,11 +283,10 @@ echo "${Bold}${White}-------------------------------------------------${Sgr0}"
 arch-chroot /mnt /bin/bash -c "grub-mkconfig -o /boot/grub/grub.cfg"
 ##############################################################################
 echo "${Bold}${White}-------------------------------------------------${Sgr0}"
-arch-chroot /mnt /bin/bash -c "yay -S ctlos-bspwm-skel"
 mv /mnt/etc/skel/ /mnt/etc/skel-ctlos/
 mkdir -p /mnt/etc/skel/
-arch-chroot /mnt /bin/bash -c "yay -S arcolinux-bspwm-git"
-cp -RT /mnt/etc/skel/ /mnt/home/$user/
+###arch-chroot /mnt /bin/bash -c "yay -S --needed arcolinux-bspwm-git"
+cp -RT /mnt/etc/skel-ctlos/ /mnt/home/$user/
 arch-chroot /mnt /bin/bash -c "chown -R $user:$user /home/$user/"
 echo "${Bold}${White}-------------------------------------------------${Sgr0}"
 ##############################################################################
